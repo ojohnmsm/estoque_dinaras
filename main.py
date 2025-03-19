@@ -12,7 +12,9 @@ historico_file = 'historico.csv'
 def carregar_estoque():
     estoque_padrao = {
         'Frango': 0, 'Costela': 0, 'Queijo': 0, 'Queijo com Bacon': 0,
-        'Carne seca': 0, 'Empadinhas': 0, 'Pizza doce': 0, 'Pizza salgada': 0, 'Guaravita': 0
+        'Carne seca': 0, 'Empadinha doce': 0,'Empadinha salgada': 0,
+        'Pizza doce': 0, 'Pizza calabresa': 0,'Pizza queijo': 0,'Pizza queijo com bacon': 0,
+        'Pizza queijo com frango': 0,'Pizza queijo com presunto': 0, 'Guaravita': 0
     }
 
     if os.path.exists(estoque_file):
@@ -41,7 +43,7 @@ def carregar_historico():
             df['Data'] = pd.to_datetime(df['Data'], errors='coerce').dt.date  # Mantém apenas a data
         return df
     else:
-        return pd.DataFrame(columns=['Data', 'Tipo', 'Sabor', 'Quantidade'])
+        return pd.DataFrame(columns=['Data', 'Tipo', 'Sabor', 'Quantidade', 'Observação'])
 
 
 def salvar_historico():
@@ -57,11 +59,11 @@ if 'historico' not in st.session_state:
 
 
 # Registrar vendas
-def registrar_venda(sabor, quantidade, data):
+def registrar_venda(sabor, quantidade, data, observacao):
     if sabor in st.session_state.estoque and st.session_state.estoque[sabor] >= quantidade:
         st.session_state.estoque[sabor] -= quantidade
         novo_registro = pd.DataFrame({
-            'Data': [data.date()], 'Tipo': ['Venda'], 'Sabor': [sabor], 'Quantidade': [quantidade]
+            'Data': [data.date()], 'Tipo': ['Venda'], 'Sabor': [sabor], 'Quantidade': [quantidade], 'Observação': [observacao]
         })
         st.session_state.historico = pd.concat([st.session_state.historico, novo_registro], ignore_index=True)
         salvar_estoque()
@@ -78,7 +80,7 @@ def cadastrar_producao(sabor, quantidade, data):
 
     st.session_state.estoque[sabor] += quantidade
     novo_registro = pd.DataFrame({
-        'Data': [data.date()], 'Tipo': ['Produção'], 'Sabor': [sabor], 'Quantidade': [quantidade]
+        'Data': [data.date()], 'Tipo': ['Produção'], 'Sabor': [sabor], 'Quantidade': [quantidade], 'Observação': ['']
     })
     st.session_state.historico = pd.concat([st.session_state.historico, novo_registro], ignore_index=True)
     salvar_estoque()
@@ -95,7 +97,9 @@ def resetar_dados():
 
     # Recarregar os dados zerados na sessão
     st.session_state.estoque = {'Frango': 0, 'Costela': 0, 'Queijo': 0, 'Queijo com Bacon': 0,
-        'Carne seca': 0, 'Empadinhas': 0, 'Pizza doce': 0, 'Pizza salgada': 0, 'Guaravita': 0}
+        'Carne seca': 0, 'Empadinha doce': 0,'Empadinha salgada': 0,
+        'Pizza doce': 0, 'Pizza calabresa': 0,'Pizza queijo': 0,'Pizza queijo com bacon': 0,
+        'Pizza queijo com frango': 0,'Pizza queijo com presunto': 0, 'Guaravita': 0}
     st.session_state.historico = pd.DataFrame(columns=['Data', 'Tipo', 'Sabor', 'Quantidade'])
 
     # Salvar os arquivos zerados
@@ -126,8 +130,9 @@ with st.form('form_venda'):
     sabor_venda = st.selectbox('Sabor vendido:', options=list(st.session_state.estoque.keys()))
     quantidade_venda = st.number_input('Quantidade vendida:', min_value=1, step=1)
     data_venda = st.date_input('Data da venda:', value=datetime.now().date())
+    observacao_venda = st.text_area('Observação:', placeholder='Exemplo: Cliente pediu sem cebola')
     if st.form_submit_button('Registrar Venda'):
-        registrar_venda(sabor_venda, quantidade_venda, pd.to_datetime(data_venda))
+        registrar_venda(sabor_venda, quantidade_venda, pd.to_datetime(data_venda), observacao_venda)
 
 st.divider()
 
