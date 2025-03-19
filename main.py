@@ -94,7 +94,7 @@ def resetar_dados():
         os.remove(historico_file)
 
     # Recarregar os dados zerados na sessão
-    st.session_state.estoque = {'Frango': 10, 'Camarão': 8, 'Palmito': 5}
+    st.session_state.estoque = {'Frango': 0, 'Camarão': 0, 'Palmito': 0}
     st.session_state.historico = pd.DataFrame(columns=['Data', 'Tipo', 'Sabor', 'Quantidade'])
 
     # Salvar os arquivos zerados
